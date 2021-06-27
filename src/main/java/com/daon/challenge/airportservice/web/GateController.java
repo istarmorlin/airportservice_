@@ -5,6 +5,7 @@ import com.daon.challenge.airportservice.dto.GateDto;
 import com.daon.challenge.airportservice.dto.GateResponseDto;
 import com.daon.challenge.airportservice.service.GateService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalTime;
@@ -32,6 +33,7 @@ public class GateController {
         return gateService.updateGateFlights(gateName, gateDto);
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PatchMapping("/{gateName}/availability")
     public GateResponseDto updateGateAvailability(@PathVariable("gateName") String gateName, @RequestBody GateDto gateDto) {
         return gateService.updateGateAvailability(gateName, gateDto);

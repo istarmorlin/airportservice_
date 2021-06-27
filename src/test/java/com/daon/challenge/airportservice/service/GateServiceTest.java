@@ -188,6 +188,42 @@ class GateServiceTest {
         verifyNoMoreInteractions(flightRepository);
     }
 
+    @Test
+    @DisplayName("Update gate availability - happy path")
+    public void testUpdateGateAvailability() {
+        var openingTime = LocalTime.of(11, 55);
+        var closingTime = LocalTime.of(19, 0);
+        var gateDto = new GateDto(1L, "g1", openingTime, closingTime, null);
+        var gateToUpdate = new Gate(1L, "g1", null, null, null);
+
+        given(gateRepository.findByName(anyString())).willReturn(Optional.of(gateToUpdate));
+
+        GateResponseDto result = gateService.updateGateAvailability("gate", gateDto);
+
+        assertEquals(openingTime, result.getAssignedGate().getOpeningTime());
+        assertEquals(closingTime, result.getAssignedGate().getClosingTime());
+
+        verify(gateRepository, times(1)).findByName(anyString());
+        verifyNoMoreInteractions(gateRepository);
+        verifyNoInteractions(flightRepository);
+    }
+
+    @Test
+    @DisplayName("Update gate availability - bad gate name")
+    public void testUpdateGateAvailability2() {
+        var openingTime = LocalTime.of(11, 55);
+        var closingTime = LocalTime.of(19, 0);
+        var gateDto = new GateDto(1L, "g1", openingTime, closingTime, null);
+
+        given(gateRepository.findByName(anyString())).willReturn(Optional.empty());
+
+        assertThrows(IllegalArgumentException.class, () -> gateService.updateGateFlights("gate", gateDto));
+
+        verify(gateRepository, times(1)).findByName(anyString());
+        verifyNoMoreInteractions(gateRepository);
+        verifyNoInteractions(flightRepository);
+    }
+
     private List<Gate> prepareGates() {
         return List.of(new Gate(1L, "g1", LocalTime.of(8, 0), LocalTime.of(20, 0), new ArrayList<>()),
                         new Gate(2L, "g2", LocalTime.of(8, 0), LocalTime.of(20, 0), new ArrayList<>()),

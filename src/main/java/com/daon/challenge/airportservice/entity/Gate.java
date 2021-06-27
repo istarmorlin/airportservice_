@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.time.LocalTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -21,6 +23,10 @@ public class Gate {
     @Column(unique = true, nullable = false)
     private String name;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    private Flight flight;
+    private LocalTime openingTime;
+
+    private LocalTime closingTime;
+
+    @OneToMany(mappedBy = "assignedGate", cascade = CascadeType.ALL)
+    private List<Flight> flights;
 }

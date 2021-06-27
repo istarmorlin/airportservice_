@@ -17,6 +17,12 @@ public class AirportServiceExceptionHandler {
         return new GateResponseDto(null, exception.getMessage());
     }
 
+    @ExceptionHandler(value = UnsupportedOperationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public GateResponseDto handleUnsupportedOperationException(RuntimeException exception) {
+        return new GateResponseDto(null, exception.getMessage());
+    }
+
     @ExceptionHandler(value = RuntimeException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public IllegalArgumentException handleException(RuntimeException exception) {

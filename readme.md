@@ -14,6 +14,8 @@ In order to start the application in local environment, following environment va
 
 ``spring.profiles.active`` = ``dev``
 
+Database connection uses default MySQL username and password (username: ```root```, password: ``` ```). If these differ on your local environment, please make such user exists or make adjustment in ``application-dev.properies`` file.
+
 ## Usage
 
 ### Structure
@@ -43,14 +45,18 @@ Request URI: `POST` ``/gates``
 Request body:
 ```
 {
-    "code" : <flight_code>
+    "code" : <flight_code>,
+    "arrival" : <arival_date_and_time>,
+    "nextDeparture" : <departure_date_and_time>
 }
 ```
 
 Example body:
 ```
 {
-    "code" : "FL2"
+    "code" : "FL2",
+    "arrival" : "2021-06-25T05:31:00",
+    "nextDeparture" : "2021-06-25T12:00:00"
 }
 ```
 
@@ -59,9 +65,14 @@ Request URI `PATCH` ``/gates/{gateName}``
 Request body:
 ```
 {
-    "flightDto" : {
-        "code" : <flight_code>
-    }
+    "flightDtos": 
+    [
+        {
+            "code" : <flight_code>,
+            "arrival" : <arival_date_and_time>,
+            "nextDeparture" : <departure_date_and_time>
+        }
+    ]
 }
 ```
 
@@ -70,8 +81,13 @@ Example URI: `PATCH` ``/gates/A1``
 Example body:
 ```
 {
-    "flightDto" : {
-        "code" : "FL2"
-    }
+    "flightDtos": 
+    [
+        {
+            "code" : "FL2",
+            "arrival" : "2021-06-25T05:31:00",
+            "nextDeparture" : "2021-06-25T12:00:00"
+        }
+    ]
 }
 ```

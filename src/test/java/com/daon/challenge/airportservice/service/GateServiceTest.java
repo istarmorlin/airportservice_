@@ -16,6 +16,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -64,16 +66,17 @@ class GateServiceTest {
         var availableGates = prepareGates();
         var flight = prepareFlight();
         var flightDto = FlightMapper.toDto(flight);
+        var requestTime = LocalTime.of(10, 0);
 
-        given(gateRepository.findAvailableGates()).willReturn(availableGates);
+        given(gateRepository.findAll()).willReturn(availableGates);
         given(flightRepository.findByCode(anyString())).willReturn(Optional.of(flight));
 
-        GateResponseDto result = gateService.assignGate(flightDto);
+        GateResponseDto result = gateService.assignGate(flightDto, requestTime);
 
         assertEquals(1L, result.getAssignedGate().getId());
         assertEquals("Successfully assigned gate", result.getResponseMessage());
 
-        verify(gateRepository, times(1)).findAvailableGates();
+        verify(gateRepository, times(1)).findAll();
         verify(flightRepository, times(1)).findByCode(anyString());
     }
 
@@ -83,15 +86,16 @@ class GateServiceTest {
         List<Gate> availableGates = Collections.emptyList();
         var flight = prepareFlight();
         var flightDto = FlightMapper.toDto(flight);
+        var requestTime = LocalTime.of(10, 0);
 
-        given(gateRepository.findAvailableGates()).willReturn(availableGates);
+        given(gateRepository.findAll()).willReturn(availableGates);
 
-        GateResponseDto result = gateService.assignGate(flightDto);
+        GateResponseDto result = gateService.assignGate(flightDto, requestTime);
 
         assertNull(result.getAssignedGate());
         assertEquals("No available gate at this time", result.getResponseMessage());
 
-        verify(gateRepository, times(1)).findAvailableGates();
+        verify(gateRepository, times(1)).findAll();
         verifyNoMoreInteractions(gateRepository);
         verifyNoInteractions(flightRepository);
     }
@@ -102,13 +106,14 @@ class GateServiceTest {
         var availableGates = prepareGates();
         var flight = prepareFlight();
         var flightDto = FlightMapper.toDto(flight);
+        var requestTime = LocalTime.of(10, 0);
 
-        given(gateRepository.findAvailableGates()).willReturn(availableGates);
+        given(gateRepository.findAll()).willReturn(availableGates);
         given(flightRepository.findByCode(anyString())).willReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> gateService.assignGate(flightDto));
+        assertThrows(IllegalArgumentException.class, () -> gateService.assignGate(flightDto, requestTime));
 
-        verify(gateRepository, times(1)).findAvailableGates();
+        verify(gateRepository, times(1)).findAll();
         verify(flightRepository, times(1)).findByCode(anyString());
         verifyNoMoreInteractions(gateRepository);
         verifyNoMoreInteractions(flightRepository);
@@ -118,8 +123,8 @@ class GateServiceTest {
     @DisplayName("Update gate - happy flow")
     public void testUpdateGate() {
         var flightToUpdate = prepareFlight();
-        var gateToUpdate = new Gate(1L, "g1", flightToUpdate);
-        var gateDto = new GateDto(3L, "g3", new FlightDto(3L, "FL3", null, null));
+        var gateToUpdate = new Gate(1L, "g1", LocalTime.of(8, 0), LocalTime.of(20, 0), List.of(flightToUpdate));
+        var gateDto = new GateDto(3L, "g3", List.of(new FlightDto(3L, "FL3", null, null)));
         var flight = new Flight(9L, "FL9", null, null, null);
 
         given(gateRepository.findByName(anyString())).willReturn(Optional.of(gateToUpdate));
@@ -129,8 +134,8 @@ class GateServiceTest {
 
         assertEquals("Successfully updated gate gate", result.getResponseMessage());
         assertEquals(1L, result.getAssignedGate().getId());
-        assertEquals(9L, result.getAssignedGate().getFlightDto().getId());
-        assertEquals("FL9", result.getAssignedGate().getFlightDto().getCode());
+        assertEquals(9L, result.getAssignedGate().getFlightDtos().get(0).getId());
+        assertEquals("FL9", result.getAssignedGate().getFlightDtos().get(0).getCode());
 
         verify(gateRepository, times(1)).findByName(anyString());
         verify(flightRepository, times(1)).findByCode(anyString());
@@ -154,7 +159,7 @@ class GateServiceTest {
     @DisplayName("Update gate - missing flight code")
     public void testUpdateGate3() {
         var gateDto = new GateDto(1L, "g1", null);
-        var gateToUpdate = new Gate(2L, "g2", null);
+        var gateToUpdate = new Gate(1L, "g1", LocalTime.of(8, 0), LocalTime.of(20, 0), null);
 
         given(gateRepository.findByName(anyString())).willReturn(Optional.of(gateToUpdate));
 
@@ -169,8 +174,8 @@ class GateServiceTest {
     @DisplayName("Update gate - bad flight code")
     public void testUpdateGate4() {
         var flightDto = new FlightDto(1L, "FL1", null, null);
-        var gateDto = new GateDto(1L, "g1", flightDto);
-        var gateToUpdate = new Gate(2L, "g2", null);
+        var gateDto = new GateDto(1L, "g1", List.of(flightDto));
+        var gateToUpdate = new Gate(1L, "g1", LocalTime.of(8, 0), LocalTime.of(20, 0), null);
 
         given(gateRepository.findByName(anyString())).willReturn(Optional.of(gateToUpdate));
         given(flightRepository.findByCode(anyString())).willReturn(Optional.empty());
@@ -184,9 +189,9 @@ class GateServiceTest {
     }
 
     private List<Gate> prepareGates() {
-        return List.of(new Gate(1L, "g1", null),
-                        new Gate(2L, "g2", null),
-                        new Gate(3L, "g3", null));
+        return List.of(new Gate(1L, "g1", LocalTime.of(8, 0), LocalTime.of(20, 0), new ArrayList<>()),
+                        new Gate(2L, "g2", LocalTime.of(8, 0), LocalTime.of(20, 0), new ArrayList<>()),
+                        new Gate(3L, "g3", LocalTime.of(8, 0), LocalTime.of(20, 0), new ArrayList<>()));
     }
 
     private Flight prepareFlight() {

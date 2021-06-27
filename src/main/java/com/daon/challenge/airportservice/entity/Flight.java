@@ -26,6 +26,6 @@ public class Flight {
 
     private LocalDateTime nextDeparture;
 
-    @OneToOne(mappedBy = "flight", cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.ALL)
     private Gate assignedGate;
 }

@@ -7,6 +7,7 @@ import com.daon.challenge.airportservice.service.GateService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalTime;
 import java.util.List;
 
 @RestController
@@ -23,7 +24,7 @@ public class GateController {
 
     @PostMapping
     public GateResponseDto assignGate(@RequestBody FlightDto flightDto) {
-        return gateService.assignGate(flightDto);
+        return gateService.assignGate(flightDto, LocalTime.now());
     }
 
     @PatchMapping("/{gateName}")

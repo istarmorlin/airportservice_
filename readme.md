@@ -20,11 +20,12 @@ Database connection uses default MySQL username and password (username: ```root`
 
 ### Structure
 
-The application consists of three endpoints:
+The application consists of four endpoints:
 
 - `GET` ``/gates`` for fetching all gates
 - `POST` ``/gates`` for assigning a flight to a gate
-- `PATCH` ``/gates/{gateName}`` for updating gate flight information
+- `PATCH` ``/gates/{gateName}/flights`` for updating gate flight information
+- `PATCH` ``/gates/{gateName}/availability`` for updating gate availability information
 
 ### Minimal request body schema
 
@@ -60,7 +61,7 @@ Example body:
 }
 ```
 
-Request URI `PATCH` ``/gates/{gateName}``
+Request URI `PATCH` ``/gates/{gateName}/flights``
 
 Request body:
 ```
@@ -76,7 +77,7 @@ Request body:
 }
 ```
 
-Example URI: `PATCH` ``/gates/A1``
+Request URI: `PATCH` ``/gates/A1/flights``
 
 Example body:
 ```
@@ -89,5 +90,25 @@ Example body:
             "nextDeparture" : "2021-06-25T12:00:00"
         }
     ]
+}
+```
+
+Request URI `PATCH` ``/gates/{gateName}/availability``
+
+Request body:
+```
+{
+    "openingTime" : <opening_time>,
+    "closingTime" : <closing_time>
+}
+```
+
+Request URI: `PATCH` ``/gates/A1/availability``
+
+Example body:
+```
+{
+    "openingTime" : "10:00:00",
+    "closingTime" : "20:00:00"
 }
 ```

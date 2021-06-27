@@ -27,8 +27,13 @@ public class GateController {
         return gateService.assignGate(flightDto, LocalTime.now());
     }
 
-    @PatchMapping("/{gateName}")
-    public GateResponseDto updateGate(@PathVariable("gateName") String gateName, @RequestBody GateDto gateDto) {
-        return gateService.updateGate(gateName, gateDto);
+    @PatchMapping("/{gateName}/flights")
+    public GateResponseDto updateGateFlights(@PathVariable("gateName") String gateName, @RequestBody GateDto gateDto) {
+        return gateService.updateGateFlights(gateName, gateDto);
+    }
+
+    @PatchMapping("/{gateName}/availability")
+    public GateResponseDto updateGateAvailability(@PathVariable("gateName") String gateName, @RequestBody GateDto gateDto) {
+        return gateService.updateGateAvailability(gateName, gateDto);
     }
 }

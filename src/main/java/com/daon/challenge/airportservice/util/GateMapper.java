@@ -14,6 +14,6 @@ public class GateMapper {
                                         .map(FlightMapper::toDtos)
                                         .orElse(null);
 
-        return new GateDto(gate.getId(), gate.getName(), flightDtos);
+        return new GateDto(gate.getId(), gate.getName(), gate.getOpeningTime(), gate.getClosingTime(), flightDtos);
     }
 }

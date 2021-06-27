@@ -51,7 +51,7 @@ public class GateService {
     }
 
     @Transactional
-    public GateResponseDto updateGate(String gateName, GateDto gateDto) {
+    public GateResponseDto updateGateFlights(String gateName, GateDto gateDto) {
         Gate gateToUpdate = gateRepository.findByName(gateName)
                                             .orElseThrow(() -> new IllegalArgumentException("No gate named " + gateName));
 
@@ -64,6 +64,17 @@ public class GateService {
 
         flights.forEach(f -> f.setAssignedGate(gateToUpdate));
         gateToUpdate.setFlights(flights);
+
+        return new GateResponseDto(GateMapper.toDto(gateToUpdate), "Successfully updated gate " + gateName);
+    }
+
+    @Transactional
+    public GateResponseDto updateGateAvailability(String gateName, GateDto gateDto) {
+        Gate gateToUpdate = gateRepository.findByName(gateName)
+                                            .orElseThrow(() -> new IllegalArgumentException("No gate named " + gateName));
+
+        gateToUpdate.setOpeningTime(gateDto.getOpeningTime());
+        gateToUpdate.setClosingTime(gateDto.getClosingTime());
 
         return new GateResponseDto(GateMapper.toDto(gateToUpdate), "Successfully updated gate " + gateName);
     }

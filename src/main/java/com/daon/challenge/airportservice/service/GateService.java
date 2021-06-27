@@ -89,8 +89,10 @@ public class GateService {
     }
 
     private boolean isGateAvailable(Gate gate, FlightDto flightDto) {
-        return gate.getFlights().isEmpty() || gate.getFlights().stream()
-                                                    .anyMatch(flight -> flight.getNextDeparture().isBefore(flightDto.getArrival())
-                                                                    || flight.getArrival().isAfter(flightDto.getNextDeparture()));
+        return gate.getFlights() == null
+                || gate.getFlights().isEmpty()
+                || gate.getFlights().stream()
+                                    .anyMatch(flight -> flight.getNextDeparture().isBefore(flightDto.getArrival())
+                                                    || flight.getArrival().isAfter(flightDto.getNextDeparture()));
     }
 }

@@ -120,17 +120,17 @@ class GateServiceTest {
     }
 
     @Test
-    @DisplayName("Update gate - happy flow")
-    public void testUpdateGate() {
+    @DisplayName("Update gate flights - happy flow")
+    public void testUpdateGateFlights() {
         var flightToUpdate = prepareFlight();
         var gateToUpdate = new Gate(1L, "g1", LocalTime.of(8, 0), LocalTime.of(20, 0), List.of(flightToUpdate));
-        var gateDto = new GateDto(3L, "g3", List.of(new FlightDto(3L, "FL3", null, null)));
+        var gateDto = new GateDto(3L, "g3", null, null, List.of(new FlightDto(3L, "FL3", null, null)));
         var flight = new Flight(9L, "FL9", null, null, null);
 
         given(gateRepository.findByName(anyString())).willReturn(Optional.of(gateToUpdate));
         given(flightRepository.findByCode(anyString())).willReturn(Optional.of(flight));
 
-        GateResponseDto result = gateService.updateGate("gate", gateDto);
+        GateResponseDto result = gateService.updateGateFlights("gate", gateDto);
 
         assertEquals("Successfully updated gate gate", result.getResponseMessage());
         assertEquals(1L, result.getAssignedGate().getId());
@@ -142,13 +142,13 @@ class GateServiceTest {
     }
 
     @Test
-    @DisplayName("Update gate - bad gate name")
-    public void testUpdateGate2() {
-        var gateDto = new GateDto(1L, "g1", null);
+    @DisplayName("Update gate flights - bad gate name")
+    public void testUpdateGateFlights2() {
+        var gateDto = new GateDto(1L, "g1", null, null,null);
 
         given(gateRepository.findByName(anyString())).willReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> gateService.updateGate("gate", gateDto));
+        assertThrows(IllegalArgumentException.class, () -> gateService.updateGateFlights("gate", gateDto));
 
         verify(gateRepository, times(1)).findByName(anyString());
         verifyNoMoreInteractions(gateRepository);
@@ -156,14 +156,14 @@ class GateServiceTest {
     }
 
     @Test
-    @DisplayName("Update gate - missing flight code")
-    public void testUpdateGate3() {
-        var gateDto = new GateDto(1L, "g1", null);
+    @DisplayName("Update gate flights - missing flight code")
+    public void testUpdateGateFlights3() {
+        var gateDto = new GateDto(1L, "g1", null, null, null);
         var gateToUpdate = new Gate(1L, "g1", LocalTime.of(8, 0), LocalTime.of(20, 0), null);
 
         given(gateRepository.findByName(anyString())).willReturn(Optional.of(gateToUpdate));
 
-        assertThrows(IllegalArgumentException.class, () -> gateService.updateGate("gate", gateDto));
+        assertThrows(IllegalArgumentException.class, () -> gateService.updateGateFlights("gate", gateDto));
 
         verify(gateRepository, times(1)).findByName(anyString());
         verifyNoMoreInteractions(gateRepository);
@@ -171,21 +171,57 @@ class GateServiceTest {
     }
 
     @Test
-    @DisplayName("Update gate - bad flight code")
-    public void testUpdateGate4() {
+    @DisplayName("Update gate flights - bad flight code")
+    public void testUpdateGateFlights4() {
         var flightDto = new FlightDto(1L, "FL1", null, null);
-        var gateDto = new GateDto(1L, "g1", List.of(flightDto));
+        var gateDto = new GateDto(1L, "g1", null, null, List.of(flightDto));
         var gateToUpdate = new Gate(1L, "g1", LocalTime.of(8, 0), LocalTime.of(20, 0), null);
 
         given(gateRepository.findByName(anyString())).willReturn(Optional.of(gateToUpdate));
         given(flightRepository.findByCode(anyString())).willReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> gateService.updateGate("gate", gateDto));
+        assertThrows(IllegalArgumentException.class, () -> gateService.updateGateFlights("gate", gateDto));
 
         verify(gateRepository, times(1)).findByName(anyString());
         verify(flightRepository, times(1)).findByCode(anyString());
         verifyNoMoreInteractions(gateRepository);
         verifyNoMoreInteractions(flightRepository);
+    }
+
+    @Test
+    @DisplayName("Update gate availability - happy path")
+    public void testUpdateGateAvailability() {
+        var openingTime = LocalTime.of(11, 55);
+        var closingTime = LocalTime.of(19, 0);
+        var gateDto = new GateDto(1L, "g1", openingTime, closingTime, null);
+        var gateToUpdate = new Gate(1L, "g1", null, null, null);
+
+        given(gateRepository.findByName(anyString())).willReturn(Optional.of(gateToUpdate));
+
+        GateResponseDto result = gateService.updateGateAvailability("gate", gateDto);
+
+        assertEquals(openingTime, result.getAssignedGate().getOpeningTime());
+        assertEquals(closingTime, result.getAssignedGate().getClosingTime());
+
+        verify(gateRepository, times(1)).findByName(anyString());
+        verifyNoMoreInteractions(gateRepository);
+        verifyNoInteractions(flightRepository);
+    }
+
+    @Test
+    @DisplayName("Update gate availability - bad gate name")
+    public void testUpdateGateAvailability2() {
+        var openingTime = LocalTime.of(11, 55);
+        var closingTime = LocalTime.of(19, 0);
+        var gateDto = new GateDto(1L, "g1", openingTime, closingTime, null);
+
+        given(gateRepository.findByName(anyString())).willReturn(Optional.empty());
+
+        assertThrows(IllegalArgumentException.class, () -> gateService.updateGateFlights("gate", gateDto));
+
+        verify(gateRepository, times(1)).findByName(anyString());
+        verifyNoMoreInteractions(gateRepository);
+        verifyNoInteractions(flightRepository);
     }
 
     private List<Gate> prepareGates() {

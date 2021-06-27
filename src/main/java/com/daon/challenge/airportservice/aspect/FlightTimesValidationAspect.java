@@ -18,7 +18,7 @@ public class FlightTimesValidationAspect {
 
     }
 
-    @Pointcut("execution(* com.daon.challenge.airportservice.service.GateService.updateGate(..))")
+    @Pointcut("execution(* com.daon.challenge.airportservice.service.GateService.updateGateFlights(..))")
     public void executeOnUpdate() {
 
     }

@@ -14,17 +14,21 @@ In order to start the application in local environment, following environment va
 
 ``spring.profiles.active`` = ``dev``
 
+``jwt.secret`` = ``<secret_string>``
+
 Database connection uses default MySQL username and password (username: ```root```, password: ``` ```). If these differ on your local environment, please make such user exists or make adjustment in ``application-dev.properies`` file.
 
 ## Usage
 
 ### Structure
 
-The application consists of three endpoints:
+The application consists of five endpoints:
 
 - `GET` ``/gates`` for fetching all gates
 - `POST` ``/gates`` for assigning a flight to a gate
-- `PATCH` ``/gates/{gateName}`` for updating gate flight information
+- `PATCH` ``/gates/{gateName}/flights`` for updating gate flight information
+- `PATCH` ``/gates/{gateName}/availability`` for updating gate availability information. This endpoint can only be used by application administrator. To authenticate, please use ``/authenticate`` endpoint. 
+- `POST` ``/authenticate`` for user authentication
 
 ### Minimal request body schema
 
@@ -60,7 +64,7 @@ Example body:
 }
 ```
 
-Request URI `PATCH` ``/gates/{gateName}``
+Request URI `PATCH` ``/gates/{gateName}/flights``
 
 Request body:
 ```
@@ -76,7 +80,7 @@ Request body:
 }
 ```
 
-Example URI: `PATCH` ``/gates/A1``
+Request URI: `PATCH` ``/gates/A1/flights``
 
 Example body:
 ```
@@ -89,5 +93,49 @@ Example body:
             "nextDeparture" : "2021-06-25T12:00:00"
         }
     ]
+}
+```
+
+Request URI `PATCH` ``/gates/{gateName}/availability``
+
+Request header: ``Authrorization`` : ``Bearer <token_value>``
+
+Request body:
+```
+{
+    "openingTime" : <opening_time>,
+    "closingTime" : <closing_time>
+}
+```
+
+Request URI: `PATCH` ``/gates/A1/availability``
+
+Example header: ``Authorization`` : ``Bearer eyJhbGci...Piw``
+
+Example body:
+```
+{
+    "openingTime" : "10:00:00",
+    "closingTime" : "20:00:00"
+}
+```
+
+Request URI ``POST`` ``/authenticate``
+
+Request body:
+```
+{
+    "username" : <user_name>,
+    "passowrd" : <user_password>
+}
+```
+
+Request URI: ``POST`` ``/authenticate``
+
+Example body:
+```
+{
+    "username" : "admin",
+    "passowrd" : "admin"
 }
 ```

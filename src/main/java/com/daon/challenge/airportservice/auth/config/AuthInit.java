@@ -19,8 +19,8 @@ public class AuthInit {
         return args -> {
             userRepository.deleteAll();
 
-            Stream.of(new User(1L, "user", passwordEncoder.encode("user"), "USER"),
-                    new User(2L, "admin", passwordEncoder.encode("admin"), "ADMIN"))
+            Stream.of(new User(null, "user", passwordEncoder.encode("user"), "USER"),
+                    new User(null, "admin", passwordEncoder.encode("admin"), "ADMIN"))
                     .forEach(userRepository::save);
         };
     }
